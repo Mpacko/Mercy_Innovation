@@ -20,7 +20,9 @@ git clone https://github.com/seu-usuario/seu-repositorio.git
 cd seu-repositorio
 ```
 
-### 2. Confirme que os arquivos `Dockerfile` e `docker-compose.yml` estão na raiz do projeto.
+### 2. Confirme que os arquivos `Dockerfile` e `docker-compose.yml` estão na pasta /docker.
+
+### 2.5 Acesse a pasta /docker `cd docker/`
 
 ---
 
