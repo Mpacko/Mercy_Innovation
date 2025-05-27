@@ -1,0 +1,9 @@
+services:
+  nginx:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ecommerce_nginx
+    ports:
+      - "8080:80"
+    restart: always
