@@ -1,88 +1,79 @@
 'use strict';
 
-// modal variables
+/* ================= MODAL ================= */
 const modal = document.querySelector('[data-modal]');
 const modalCloseBtn = document.querySelector('[data-modal-close]');
 const modalCloseOverlay = document.querySelector('[data-modal-overlay]');
 
-// modal function
-const modalCloseFunc = function () { modal.classList.add('closed') }
+const modalCloseFunc = () => {
+  modal.classList.add('closed');
+  document.body.classList.remove('no-scroll'); // optional UX
+};
 
-// modal eventListener
-modalCloseOverlay.addEventListener('click', modalCloseFunc);
-modalCloseBtn.addEventListener('click', modalCloseFunc);
-
-
-
+modalCloseOverlay?.addEventListener('click', modalCloseFunc);
+modalCloseBtn?.addEventListener('click', modalCloseFunc);
 
 
-// notification toast variables
+/* ================= TOAST ================= */
 const notificationToast = document.querySelector('[data-toast]');
 const toastCloseBtn = document.querySelector('[data-toast-close]');
 
-// notification toast eventListener
-toastCloseBtn.addEventListener('click', function () {
+toastCloseBtn?.addEventListener('click', () => {
   notificationToast.classList.add('closed');
 });
 
+// Auto close after 5 seconds
+if (notificationToast) {
+  setTimeout(() => {
+    notificationToast.classList.add('closed');
+  }, 5000);
+}
 
 
-
-
-// mobile menu variables
+/* ================= MOBILE MENU ================= */
 const mobileMenuOpenBtn = document.querySelectorAll('[data-mobile-menu-open-btn]');
 const mobileMenu = document.querySelectorAll('[data-mobile-menu]');
 const mobileMenuCloseBtn = document.querySelectorAll('[data-mobile-menu-close-btn]');
 const overlay = document.querySelector('[data-overlay]');
 
-for (let i = 0; i < mobileMenuOpenBtn.length; i++) {
+mobileMenuOpenBtn.forEach((openBtn, i) => {
+  const menu = mobileMenu[i];
+  const closeBtn = mobileMenuCloseBtn[i];
 
-  // mobile menu function
-  const mobileMenuCloseFunc = function () {
-    mobileMenu[i].classList.remove('active');
-    overlay.classList.remove('active');
-  }
-
-  mobileMenuOpenBtn[i].addEventListener('click', function () {
-    mobileMenu[i].classList.add('active');
+  const openMenu = () => {
+    menu.classList.add('active');
     overlay.classList.add('active');
-  });
+    document.body.classList.add('no-scroll'); // optional
+  };
 
-  mobileMenuCloseBtn[i].addEventListener('click', mobileMenuCloseFunc);
-  overlay.addEventListener('click', mobileMenuCloseFunc);
+  const closeMenu = () => {
+    menu.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.classList.remove('no-scroll'); // optional
+  };
 
-}
+  openBtn?.addEventListener('click', openMenu);
+  closeBtn?.addEventListener('click', closeMenu);
+  overlay?.addEventListener('click', closeMenu);
+});
 
 
-
-
-
-// accordion variables
+/* ================= ACCORDION ================= */
 const accordionBtn = document.querySelectorAll('[data-accordion-btn]');
 const accordion = document.querySelectorAll('[data-accordion]');
 
-for (let i = 0; i < accordionBtn.length; i++) {
+accordionBtn.forEach((btn, index) => {
+  btn.addEventListener('click', () => {
+    const currentActive = accordion[index].classList.contains('active');
 
-  accordionBtn[i].addEventListener('click', function () {
+    accordion.forEach((acc, i) => {
+      acc.classList.remove('active');
+      accordionBtn[i].classList.remove('active');
+    });
 
-    const clickedBtn = this.nextElementSibling.classList.contains('active');
-
-    for (let i = 0; i < accordion.length; i++) {
-
-      if (clickedBtn) break;
-
-      if (accordion[i].classList.contains('active')) {
-
-        accordion[i].classList.remove('active');
-        accordionBtn[i].classList.remove('active');
-
-      }
-
+    if (!currentActive) {
+      accordion[index].classList.add('active');
+      btn.classList.add('active');
     }
-
-    this.nextElementSibling.classList.toggle('active');
-    this.classList.toggle('active');
-
   });
-
-}
+});
