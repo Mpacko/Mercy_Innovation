@@ -1,65 +1,70 @@
 pipeline {
-  agent { label 'docker-agent' }
-  environment {
-    IMAGE = "Mpacko27/app-web"
-    VPS_IP = "192.168.234.143"
-    DOMAIN = "192.168.234.143"
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-    stage('Build Docker Image') {
-      steps {
-        sh 'docker build -t $IMAGE:$GIT_COMMIT .'
-      }
-    }
-    stage('Push to Docker Hub') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-          sh 'docker push $IMAGE:$GIT_COMMIT'
-        }
-      }
-    }
-    stage('Deploy on VPS') {
-      steps {
-        sshagent (credentials: ['vps-ssh-creds']) {
-          sh """
-            ssh -o StrictHostKeyChecking=no jenkins@$VPS_IP '
-              docker pull $IMAGE:$GIT_COMMIT &&
-              docker rm -f mon-projet-php || true &&
-              docker run -d --name mon-projet-php -p 127.0.0.1:8080:80 $IMAGE:$GIT_COMMIT
-            '
-          """
-        }
-      }
-    }
-    stage('Configure Nginx') {
-      steps {
-        sshagent (credentials: ['vps-ssh-creds']) {
-          sh """
-            ssh -o StrictHostKeyChecking=no jenkins@$VPS_IP '
-              echo "server {
-                listen 80;
-                server_name $DOMAIN www.$DOMAIN;
+    agent any
 
-                location / {
-                  proxy_pass http://127.0.0.1:8080;
-                  proxy_set_header Host \\$host;
-                  proxy_set_header X-Real-IP \\$remote_addr;
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Mpacko27')  // Nom du credential DockerHub
+        VPS_SSH_CREDENTIALS = credentials('vps-ssh-creds')      // Nom du credential SSH VPS
+        DOCKER_IMAGE = "Mpacko27/app-web"           // Ton repo DockerHub
+        VPS_IP = "192.168.234.143"                           // IP ou domaine de ton VPS
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Mpacko/anon-ecommerce-website.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:latest .
+                    """
                 }
-              }" | sudo tee /etc/nginx/sites-available/mon-projet-php.conf &&
-
-              sudo ln -sf /etc/nginx/sites-available/mon-projet-php.conf /etc/nginx/sites-enabled/ &&
-              sudo nginx -t &&
-              sudo systemctl reload nginx
-            '
-          """
+            }
         }
-      }
+
+        stage('Login to DockerHub & Push Image') {
+            steps {
+                script {
+                    sh """
+                        echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                        docker push ${DOCKER_IMAGE}:latest
+                    """
+                }
+            }
+        }
+
+
+
+
+        
+
+        stage('Deploy to VPS') {
+            steps {
+                script {
+                    sshagent(credentials: ['vps-ssh-creds']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no root@${VPS_IP} '
+                                docker pull ${DOCKER_IMAGE}:latest &&
+                                docker stop Anon-ecommerce-website || true &&
+                                docker rm Anon-ecommerce-website || true &&
+                                docker run -d --name Anon-ecommerce-website -p 8080:80 ${DOCKER_IMAGE}:latest
+                            '
+                         """
+                    }
+                }
+            }
+        }
     }
-  }
+
+    post {
+        success {
+            echo '✅ Déploiement réussi !'
+        }
+        failure {
+            echo '❌ Erreur lors du déploiement.'
+        }
+    }
 }
