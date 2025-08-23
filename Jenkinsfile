@@ -9,7 +9,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Mpacko27')    // DockerHub credentials
         VPS_SSH_CREDENTIALS = credentials('vps-ssh-creds') // SSH credentials pour VPS
-        DOCKER_IMAGE = "Mpacko27/app-web"                  // Repo DockerHub
+        DOCKER_IMAGE = "mpacko27/app-web"                  // Repo DockerHub
         VPS_IP = "192.168.234.143"                         // IP VPS
     }
 
