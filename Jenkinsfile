@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Mpacko27')    // DockerHub credentials
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')    // DockerHub credentials
         VPS_SSH_CREDENTIALS = credentials('vps-ssh-creds') // SSH credentials pour VPS
         DOCKER_IMAGE = "mpacko27/app-web"                  // Repo DockerHub
         VPS_IP = "192.168.234.143"                         // IP VPS
@@ -16,8 +16,11 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/Mpacko/Mercy_Innovation.git',
-                credentialsId: 'github-token'
+                git(
+                    branch: 'master',
+                    url: 'https://github.com/Mpacko/Mercy_Innovation.git',
+                    credentialsId: 'github-token'
+                )
             }
         }
 
@@ -37,18 +40,17 @@ pipeline {
         }
 
         stage('Deploy to VPS') {
-            steps {
-                sshagent(credentials: ['vps-ssh-creds']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no root@${VPS_IP} '
-                            docker pull ${DOCKER_IMAGE}:latest &&
-                            docker stop app-web || true &&
-                            docker rm app-web || true &&
-                            docker run -d --name app-web -p 8080:80 ${DOCKER_IMAGE}:latest
-                        '
-                    """
-                }
-            }
+            stage('Deploy Locally') {
+    steps {
+        sh """
+            docker stop app-web || true
+            docker rm app-web || true
+            docker pull ${DOCKER_IMAGE}:latest
+            docker run -d --name app-web -p 8080:80 ${DOCKER_IMAGE}:latest
+        """
+    }
+}
+
         }
     }
 
@@ -75,9 +77,7 @@ pipeline {
         }
         failure {
             script {
-                // Récupère les 20 dernières lignes des logs pour l'email
                 def logs = currentBuild.rawBuild.getLog(20).join("<br>")
-                
                 mail to: "edingelemarc@gmail.com",
                      subject: "❌ Échec du déploiement : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                      mimeType: 'text/html',
