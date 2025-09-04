@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Mercy Innovation Lab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <h1>Inscription</h1>
+        <form id="registerForm">
+            <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Mot de passe" required>
+            <button type="submit" class="btn">S'inscrire</button>
+        </form>
+        <p>Déjà un compte ? <a href="login.html">Connectez-vous</a></p>
+    </div>
+    <script>
+        document.getElementById('registerForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const res = await fetch('../backend/auth/register.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.text();
+            if (result === 'success') {
+                alert('Inscription réussie ! Connectez-vous.');
+                window.location.href = 'login.html';
+            } else {
+                alert('Erreur lors de l\'inscription. Réessayez.');
+            }
+        };
+    </script>
+</body>
+</html>
