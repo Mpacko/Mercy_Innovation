@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', () => {
     loadStagiaires();
 
     const form = document.getElementById('addForm');
