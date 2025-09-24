@@ -1,17 +1,21 @@
-# Mercy Interns App - Full project
+# MercyLab Interns App
 
-This archive contains a ready-to-run frontend and backend for Mercy Innovation Lab interns management.
-- Frontend: React (in `frontend/`)
-- Backend: Node/Express + Sequelize (Postgres) (in `backend/`)
-- docker-compose.yml to run the whole stack locally.
+Application PHP simple pour gérer les stagiaires (prototype).
+- Pas de base de données : les données sont stockées en session PHP.
+- Mot de passe admin pré-défini dans `index.php` : changez `$ADMIN_PASSWORD`.
 
-Quick start:
-1. Copy `.env.example` to `backend/.env` and adjust if necessary.
-2. Run: `docker-compose up --build`
-3. Frontend: http://localhost:3000
-   Backend API: http://localhost:4000
+## Utilisation
 
-Seeded admin (on first run):
-- admin@mercylab.com / password123 (please change immediately)
+1. Placer le dossier `MercyLab_interns_app` dans la racine d'un serveur PHP (ex. XAMPP/WAMP/LAMP) ou exécuter le serveur intégré :
+```
+php -S localhost:8000
+```
+2. Ouvrir `http://localhost:8000` (ou l'URL appropriée).
 
-CI/CD: Jenkinsfile provided as a starting point (customize `yourdockerhub` and `deploy@yourserver`).
+## Fichiers
+- `index.php` : fichier principal contenant la page d'accueil, connexion et dashboard.
+- `README.md` : ce fichier.
+
+## Personnalisation rapide
+- Modifier le mot de passe : éditez la variable `$ADMIN_PASSWORD` en haut de `index.php`.
+- Persistance : pour persister les stagiaires au-delà des sessions, vous pouvez soit écrire dans un fichier JSON, soit connecter une base de données. Je peux t'aider à faire ça.
