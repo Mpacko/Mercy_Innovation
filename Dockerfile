@@ -16,9 +16,6 @@ RUN mkdir -p /var/www/sessions \
  && chown -R www-data:www-data /var/www/sessions \
  && chmod 770 /var/www/sessions
 
-# Copie la configuration PHP custom (voir custom.ini ci-dessous)
-COPY docker/config/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
-
 # Copie tout le code de l'application dans le répertoire webroot
 # Lorsque tu builds avec le contexte correct, ton dossier local sera copié
 COPY . /var/www/html
