@@ -65,4 +65,4 @@ foreach ($tests as $name => $result) {
     }
 }
 
-exit($success ? 0 : 1); // 0 = succès pour Jenkins
+exit($success ? 0 : 1); // 0 = succès pour Jenkin
